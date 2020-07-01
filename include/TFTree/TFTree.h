@@ -12,13 +12,13 @@ class TFTree {
 public:
 
     explicit TFTree(const T& rootNodeHash) {
-        nodesHashMap_.emplace( std::make_pair<T, TFNode<T>>(rootNodeHash, TFNode<T>{rootNodeHash, TF{0,0,0}}) );
+        nodesHashMap_.insert( std::make_pair(rootNodeHash, TFNode<T>{rootNodeHash, TF{0,0,0}}) );
         existingHashes_.emplace_back(rootNodeHash);
     }
 
-    void addTFToTree(TF tf, const T& hash, const T& parentHash) {
+    void addTFToTree(TF&& tf, const T& hash, const T& parentHash) {
         if (hashExists(parentHash)) {
-            nodesHashMap_.emplace( std::make_pair<T, TFNode<T>>(hash, TFNode<T>{hash, tf, nodesHashMap_.at(parentHash)}));
+            nodesHashMap_.emplace( std::make_pair(hash, TFNode<T>{hash, tf, nodesHashMap_.at(parentHash)}));
             nodesHashMap_.at(parentHash).addChildren(nodesHashMap_.at(hash));
             existingHashes_.emplace_back(hash);
         }
@@ -58,8 +58,10 @@ public:
         secondPath.push_back(second);
 
         while (true) {
-            auto currentFirst = nodesHashMap_.at(firstPath.back());
-            auto currentSecond = nodesHashMap_.at(secondPath.back());
+
+            std::cout << nodesHashMap_.at(firstPath.back()).getHash() << " " << nodesHashMap_.at(secondPath.back()).getHash() << std::endl;
+            auto& currentFirst = nodesHashMap_.at(firstPath.back());
+            auto& currentSecond = nodesHashMap_.at(secondPath.back());
 
             if (currentFirst.getHash() == currentSecond.getHash()) {
                 break;

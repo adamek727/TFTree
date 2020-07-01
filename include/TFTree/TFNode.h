@@ -30,7 +30,16 @@ public:
         parent.addChildren(*this);
     }
 
-    TFNode(TFNode& tfNode) :
+//    TFNode(TFNode& tfNode) noexcept :
+//            hash_{tfNode.getHash()},
+//            tf_{tfNode.getTF()},
+//            parent_{tfNode.getParent()},
+//            children_{tfNode.getChildren()},
+//            treeLevel_{tfNode.getTreeLevel()} {
+//
+//    }
+
+    TFNode(TFNode&& tfNode) :
             hash_{tfNode.getHash()},
             tf_{tfNode.getTF()},
             parent_{tfNode.getParent()},
