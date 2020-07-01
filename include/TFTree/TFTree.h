@@ -11,14 +11,14 @@ class TFTree {
 
 public:
 
-    TFTree(const T& rootNodeHash) {
+    explicit TFTree(const T& rootNodeHash) {
+        nodesHashMap_.emplace( std::make_pair<T, TFNode<T>>(rootNodeHash, TFNode<T>{rootNodeHash, TF{0,0,0}}) );
         existingHashes_.emplace_back(rootNodeHash);
-        nodesHashMap_.insert( {rootNodeHash, TFNode{rootNodeHash, TF{0,0,0}}} );
     }
 
     void addTFToTree(TF tf, const T& hash, const T& parentHash) {
         if (hashExists(parentHash)) {
-            nodesHashMap_.insert({hash, TFNode{hash, tf, nodesHashMap_.at(parentHash)}});
+            nodesHashMap_.emplace( std::make_pair<T, TFNode<T>>(hash, TFNode<T>{hash, tf, nodesHashMap_.at(parentHash)}));
             nodesHashMap_.at(parentHash).addChildren(nodesHashMap_.at(hash));
             existingHashes_.emplace_back(hash);
         }
@@ -38,9 +38,9 @@ public:
         return nodesHashMap_.at(hash).getTF();
     }
 
-    TFChain aggregatedTFBetween(const T& first, const T& second) {
+    TFChain<T> aggregatedTFBetween(const T& first, const T& second) {
 
-        TFChain output{};
+        TFChain<T> output{};
 
         if ( !hashExists(first) || !hashExists(second)) {
             return output;
@@ -57,7 +57,6 @@ public:
         secondPath.reserve(nodesHashMap_.at(second).getTreeLevel()+1);
         secondPath.push_back(second);
 
-        // build path from the first and from the second to the Lowest Common Ancestor
         while (true) {
             auto currentFirst = nodesHashMap_.at(firstPath.back());
             auto currentSecond = nodesHashMap_.at(secondPath.back());
@@ -97,5 +96,5 @@ public:
 private:
 
     std::vector<T> existingHashes_;
-    std::map<T, TFNode> nodesHashMap_;
+    std::map<T, TFNode<T>> nodesHashMap_;
 };

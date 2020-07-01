@@ -28,16 +28,17 @@ int main() {
     }
 
 
-    std::cout << tree.aggregatedTFBetween("d", "f").aggregatedTF() << std::endl;    // -3 -3 -3
-    std::cout << tree.aggregatedTFBetween("d", "h").aggregatedTF() << std::endl;    // -5 -5 -5
-    std::cout << tree.aggregatedTFBetween("i", "j").aggregatedTF() << std::endl;    // -2 -2 -2
-    std::cout << tree.aggregatedTFBetween("j", "i").aggregatedTF() << std::endl;    //  2  2  2
-    std::cout << tree.aggregatedTFBetween("a", "a").aggregatedTF() << std::endl;    //  0  0  0
-    std::cout << tree.aggregatedTFBetween("c", "a").aggregatedTF() << std::endl;    //  1  1  1
-    std::cout << tree.aggregatedTFBetween("a", "c").aggregatedTF() << std::endl;    // -1 -1 -1
+    std::cout << tree.aggregatedTFBetween("d", "f").getTF() << std::endl;    // -3 -3 -3
+    std::cout << tree.aggregatedTFBetween("d", "h").getTF() << std::endl;    // -5 -5 -5
+    std::cout << tree.aggregatedTFBetween("i", "j").getTF() << std::endl;    // -2 -2 -2
+    std::cout << tree.aggregatedTFBetween("j", "i").getTF() << std::endl;    //  2  2  2
+    std::cout << tree.aggregatedTFBetween("a", "a").getTF() << std::endl;    //  0  0  0
+    std::cout << tree.aggregatedTFBetween("c", "a").getTF() << std::endl;    //  1  1  1
+    std::cout << tree.aggregatedTFBetween("a", "c").getTF() << std::endl;    // -1 -1 -1
 
-    auto d = tree.at("d") ;
-    std::cout << tree.aggregatedTFBetween("d", "f").aggregatedTF() << std::endl;    // -4 -4 -4
+//    auto d = tree.at("d") ;
+    tree.updateTFForHash(TF{3.0, 3.0, 3.0}, "d");
+    std::cout << tree.aggregatedTFBetween("d", "f").getTF() << std::endl;    // -4 -4 -4
 
     return 0;
 }

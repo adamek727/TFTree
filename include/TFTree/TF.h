@@ -8,7 +8,7 @@ public:
 
     TF() = delete;
 
-    TF(double x, double y, double z) :
+    explicit TF(double x, double y, double z) :
         x_{x},
         y_{y},
         z_{z} {

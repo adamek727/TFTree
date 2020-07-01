@@ -6,13 +6,15 @@
 
 #include "TF.h"
 
+
+template<typename T>
 class TFNode {
 
 public:
 
     TFNode() = delete;
 
-    TFNode(std::string hash, TF tf) :
+    explicit TFNode(const T& hash, TF tf) :
             hash_{std::move(hash)},
             tf_{tf},
             parent_{*this},
@@ -20,7 +22,7 @@ public:
 
     }
 
-    TFNode(std::string hash, TF tf, TFNode& parent) :
+    explicit TFNode(const T& hash, TF tf, TFNode& parent) :
             hash_{std::move(hash)},
             tf_{tf},
             parent_{parent},
@@ -28,17 +30,17 @@ public:
         parent.addChildren(*this);
     }
 
-    TFNode(TFNode& old) :
-            hash_{old.getHash()},
-            tf_{old.getTF()},
-            parent_{old.getParent()},
-            children_{old.getChildren()},
-            treeLevel_{old.getTreeLevel()} {
+    TFNode(TFNode& tfNode) :
+            hash_{tfNode.getHash()},
+            tf_{tfNode.getTF()},
+            parent_{tfNode.getParent()},
+            children_{tfNode.getChildren()},
+            treeLevel_{tfNode.getTreeLevel()} {
 
     }
 
 
-    [[nodiscard]] const std::string& getHash() const { return hash_;}
+    [[nodiscard]] const T& getHash() const { return hash_;}
     [[nodiscard]] const TF& getTF() {return tf_;};
     [[nodiscard]] const TFNode& getParent() const {return treeLevel_ == 0 ? *this : parent_;};
     [[nodiscard]] std::vector<std::reference_wrapper<TFNode>> getChildren() const {return children_;};
@@ -51,7 +53,7 @@ public:
 
 private:
 
-    std::string hash_;
+    const T& hash_;
     TF tf_;
 
     const TFNode& parent_;
