@@ -28,7 +28,7 @@ public:
         parent.addChildren(*this);
     }
 
-    TFNode(const TFNode& old) :
+    TFNode(TFNode& old) :
             hash_{old.getHash()},
             tf_{old.getTF()},
             parent_{old.getParent()},
@@ -37,23 +37,17 @@ public:
 
     }
 
-//    TFNode& operator=(const TFNode& rNode) {
-//        hash_ = rNode.getHash();
-//        tf_ = rNode.getTF();
-//        parent_ = rNode.getParent();
-//        children_ = rNode.getChildren();
-//        return *this;
-//    }
-
 
     [[nodiscard]] const std::string& getHash() const { return hash_;}
-    [[nodiscard]] const TF& getTF() const {return tf_;};
+    [[nodiscard]] const TF& getTF() {return tf_;};
     [[nodiscard]] const TFNode& getParent() const {return treeLevel_ == 0 ? *this : parent_;};
     [[nodiscard]] std::vector<std::reference_wrapper<TFNode>> getChildren() const {return children_;};
 
     void addChildren(TFNode& newChild) {children_.emplace_back(newChild);}
     [[nodiscard]]bool isRoot() const {return treeLevel_ == 0;};
     uint32_t getTreeLevel() const {return treeLevel_;}
+
+    void setTF(TF tf) {tf_ = tf;};
 
 private:
 
@@ -63,4 +57,5 @@ private:
     const TFNode& parent_;
     std::vector<std::reference_wrapper<TFNode>> children_{};
     uint32_t treeLevel_;
+
 };
