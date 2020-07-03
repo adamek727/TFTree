@@ -73,22 +73,21 @@ public:
 
         while (true) {
 
-            std::cout << nodesHashMap_.at(firstPath.back()).getHash() << " " << nodesHashMap_.at(secondPath.back()).getHash() << std::endl;
             auto& currentFirst = nodesHashMap_.at(firstPath.back());
             auto& currentSecond = nodesHashMap_.at(secondPath.back());
 
-            if (currentFirst.getHash() == currentSecond.getHash()) {
+            if (firstPath.back() == secondPath.back()) {
                 break;
             }
 
             if(currentFirst.getTreeLevel() > currentSecond.getTreeLevel()) {
-                firstPath.push_back(currentFirst.getParent().getHash());
+                firstPath.push_back(currentFirst.getParentHash());
             }
             else if(currentFirst.getTreeLevel() < currentSecond.getTreeLevel()) {
-                secondPath.push_back(currentSecond.getParent().getHash());
+                secondPath.push_back(currentSecond.getParentHash());
             } else {
-                firstPath.push_back(currentFirst.getParent().getHash());
-                secondPath.push_back(currentSecond.getParent().getHash());
+                firstPath.push_back(currentFirst.getParentHash());
+                secondPath.push_back(currentSecond.getParentHash());
             }
         }
 

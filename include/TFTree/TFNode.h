@@ -18,7 +18,7 @@ public:
     explicit TFNode(const hashType hash, TF tf) :
             hash_{hash},
             tf_{tf},
-            parent_{*this},
+            parent_{hash_},
             treeLevel_{0} {
 
     }
@@ -26,15 +26,15 @@ public:
     explicit TFNode(const hashType& hash, TF tf, TFNode& parent) :
             hash_{hash},
             tf_{tf},
-            parent_{parent},
+            parent_{parent.getHash()},
             treeLevel_{parent.getTreeLevel() + 1} {
         parent.addChildren(*this);
     }
 
-    TFNode(TFNode&& tfNode) :
+    TFNode(TFNode&& tfNode) noexcept :
             hash_{tfNode.getHash()},
             tf_{tfNode.getTF()},
-            parent_{tfNode.getParent()},
+            parent_{tfNode.getParentHash()},
             children_{tfNode.getChildren()},
             treeLevel_{tfNode.getTreeLevel()} {
 
@@ -43,12 +43,12 @@ public:
 
     [[nodiscard]] const hashType& getHash() const { return hash_;}
     [[nodiscard]] const TF& getTF() {return tf_;};
-    [[nodiscard]] const TFNode& getParent() const {return treeLevel_ == 0 ? *this : parent_;};
+    [[nodiscard]] const hashType& getParentHash() const {return treeLevel_ == 0 ? hash_ : parent_;};
     [[nodiscard]] std::vector<std::reference_wrapper<TFNode>> getChildren() const {return children_;};
 
     void addChildren(TFNode& newChild) {children_.emplace_back(newChild);}
-    [[nodiscard]]bool isRoot() const {return treeLevel_ == 0;};
-    uint32_t getTreeLevel() const {return treeLevel_;}
+    [[nodiscard]] bool isRoot() const {return treeLevel_ == 0;};
+    [[nodiscard]] uint32_t getTreeLevel() const {return treeLevel_;}
 
     void setTF(TF tf) {tf_ = tf;};
 
@@ -57,7 +57,7 @@ private:
     const hashType hash_;
     TF tf_;
 
-    const TFNode& parent_;
+    const hashType parent_;
     std::vector<std::reference_wrapper<TFNode>> children_{};
     uint32_t treeLevel_;
 
