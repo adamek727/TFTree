@@ -13,7 +13,7 @@ int main() {
     if (tree.hashExists("robot_2")) {
         tf = tree.at("robot_2");
     }
-    
+
     auto chain = tree.aggregatedTFBetween("robot_1", "robot_2");
 
     return 0;
