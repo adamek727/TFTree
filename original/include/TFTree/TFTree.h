@@ -12,48 +12,97 @@ class TFTree {
 public:
 
     explicit TFTree(const T& rootNodeHash) {
-        existingHashes_.emplace_back(rootNodeHash);
-        nodesHashMap_.insert({rootNodeHash, {rootNodeHash, {0,0,0}}});
+        auto hash = std::hash<T>{}(rootNodeHash);
+        nodesHashMap_.emplace( hash, TFNode{hash, TF{0,0,0}} );
+        existingHashes_.emplace_back(hash);
     }
 
-    void addTFToTree(TF tf, const T& hash, const T& parentHash) {
-        if (hashExists(parentHash)) {
-            nodesHashMap_.insert({hash, TFNode{hash, tf, nodesHashMap_.at(parentHash)}});
-            nodesHashMap_.at(parentHash).addChildren(nodesHashMap_.at(hash));
+    void addTFToTree(const TF& tf, const T& tfHash, const T& parentHash) {
+
+        auto hash = std::hash<T>{}(tfHash);
+        auto pHash = std::hash<T>{}(parentHash);
+        if (hashExists(pHash)) {
+            nodesHashMap_.emplace( hash, TFNode{hash, tf, nodesHashMap_.at(pHash)});
+            nodesHashMap_.at(pHash).addChildren(nodesHashMap_.at(hash));
             existingHashes_.emplace_back(hash);
         }
     }
 
-    bool hashExists(const T& hash) {
+    void updateTFForHash(TF tf, const T& tfHash) {
+        auto hash = std::hash<T>{}(tfHash);
+        if (hashExists(hash)) {
+            nodesHashMap_.at(hash).setTF(tf);
+        }
+    }
+
+    bool hashExists(const hashType& hash) {
         return std::find(existingHashes_.begin(), existingHashes_.end(), hash) != existingHashes_.end();
     }
 
-    TF operator[] (const T& hash) {
-        if(hashExists(hash)) {
-
-        }
-        return {0,0,0};
+    bool hashExists(const T& tfHash) {
+        auto hash = std::hash<T>{}(tfHash);
+        return std::find(existingHashes_.begin(), existingHashes_.end(), hash) != existingHashes_.end();
     }
 
-    TF at(const T& hash) {
+    const TF& at(const T& tfHash) {
+        auto hash = std::hash<T>{}(tfHash);
         return nodesHashMap_.at(hash).getTF();
     }
 
-    TFChain aggregatedTFBetween(const std::string& first, const std::string& second) {
+    TFChain<T> aggregatedTFBetween(const T& first, const T& second) {
 
-        TFChain output{};
+        TFChain<T> output{};
 
-        if ( !hashExists(first) || !hashExists(second)) {
+        auto fHash = std::hash<T>{}(first);
+        auto sHash = std::hash<T>{}(second);
+
+        if ( !hashExists(fHash) || !hashExists(sHash)) {
             return output;
         }
-        if(first == second) {
+        if(fHash == sHash) {
             return output;
         }
 
-        // build path from first to root and from second to root
+        std::vector<hashType> firstPath;
+        firstPath.reserve(nodesHashMap_.at(fHash).getTreeLevel()+1);
+        firstPath.push_back(fHash);
 
-        // sertch
+        std::vector<hashType> secondPath;
+        secondPath.reserve(nodesHashMap_.at(sHash).getTreeLevel()+1);
+        secondPath.push_back(sHash);
 
+        while (true) {
+
+            auto& currentFirst = nodesHashMap_.at(firstPath.back());
+            auto& currentSecond = nodesHashMap_.at(secondPath.back());
+
+            if (firstPath.back() == secondPath.back()) {
+                break;
+            }
+
+            if(currentFirst.getTreeLevel() > currentSecond.getTreeLevel()) {
+                firstPath.push_back(currentFirst.getParentHash());
+            }
+            else if(currentFirst.getTreeLevel() < currentSecond.getTreeLevel()) {
+                secondPath.push_back(currentSecond.getParentHash());
+            } else {
+                firstPath.push_back(currentFirst.getParentHash());
+                secondPath.push_back(currentSecond.getParentHash());
+            }
+        }
+
+        if(firstPath.back() != secondPath.back()) {
+            std::cerr << "Unexpected state!" << std::endl;
+            return output;
+        }
+
+        for (auto inverseNodeIt = firstPath.begin() ; inverseNodeIt < firstPath.end()-1 ; inverseNodeIt++) {
+            output.appendInverse(nodesHashMap_.at(*inverseNodeIt));
+        }
+
+        for (auto directNodeIt = secondPath.end()-2 ; directNodeIt >= secondPath.begin() ; directNodeIt--) {
+            output.appendDirect(nodesHashMap_.at(*directNodeIt));
+        }
 
         return output;
     }
@@ -61,6 +110,6 @@ public:
 
 private:
 
-    std::vector<T> existingHashes_;
-    std::map<T, TFNode> nodesHashMap_;
+    std::vector<hashType> existingHashes_;
+    std::unordered_map<hashType, TFNode> nodesHashMap_;
 };

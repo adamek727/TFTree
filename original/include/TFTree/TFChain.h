@@ -7,26 +7,36 @@
 template<typename T>
 class TFTree;
 
+template<typename T>
 class TFChain {
 
 public:
 
     TFChain() { }
 
-    TF aggregatedTF() const {
+    TF getTF() const {
         auto tf = TF{0,0,0};
-        for (auto const& node : chain_) {
+        for (auto const& node : chainInverse_) {
+            tf *= node.get().getTF().inverted();
+        }
+        for (auto const& node : chainDirect_) {
             tf *= node.get().getTF();
         }
         return tf;
     }
 
+    TF getInverseTF() const {
+        return getTF().inverted();
+    }
+
 protected:
 
-    void append(const TFNode& node) { chain_.emplace_back(node); }
+    void appendDirect(TFNode& node) { chainDirect_.emplace_back(node); }
+    void appendInverse(TFNode& node) { chainInverse_.emplace_back(node); }
 
 private:
 
-    std::vector<std::reference_wrapper<const TFNode>> chain_{};
+    std::vector<std::reference_wrapper<TFNode>> chainDirect_{};
+    std::vector<std::reference_wrapper<TFNode>> chainInverse_{};
     friend class TFTree<std::string>;
 };
